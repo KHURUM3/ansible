@@ -1,0 +1,13 @@
+[web_servers]
+regina@192.168.0.100
+
+[file_servers]
+serena@192.168.0.99 
+
+[workstations]
+sheppard@192.168.0.179
+
+[db_servers]
+regina@192.168.0.100
+serena@192.168.0.99
+
