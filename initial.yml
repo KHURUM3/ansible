@@ -1,0 +1,31 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates (Ubuntu)
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+
+  - name: make sure NTP service is running
+    systemd:
+      name: systemd-timesyncd
+      state: started
+
+  - name: make sure we have a 'sudo' group
+    group:
+      name: sudo
+      state: present
+
+  - name: Disable remote login for root
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      state: present
+      regexp: '^PermitRootLogin yes'
+      line: 'PermitRootLogin no'
+
