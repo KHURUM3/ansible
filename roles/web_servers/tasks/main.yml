@@ -1,0 +1,106 @@
+- name: make sure NTP service is running
+  systemd:
+    name: systemd-timesyncd
+    state: started
+
+
+- name: make sure we have a 'sudo' group
+  group:
+    name: sudo
+    state: present
+
+
+- name: disable remote login for root
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#PermitRootLogin yes'
+    line: 'PermitRootLogin no'
+
+
+- name: changing white list
+  lineinfile:
+    path: /etc/hosts.allow
+    state: present
+    line: 'SSHD: 192.168.0.179'
+
+
+- name: changing black list
+  lineinfile:
+    path: /etc/hosts.deny
+    state: present
+    line: 'SSHD: ALL'
+
+
+- name: UFW - Allow SSH connections
+  ufw:
+    rule: allow
+    port: "{{ ssh_port }}"
+
+
+- name: Brute-force attempt protection for SSH
+  ufw:
+    rule: limit
+    port: "{{ ssh_port }}"
+    proto: tcp
+
+
+- name: UFW - Deny other incoming traffic and enable UFW
+  ufw:
+    state: enabled
+    policy: deny
+    direction: incoming
+
+
+- name: disable X11 forwarding
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#X11Forwarding yes'
+    line: 'X11Forwarding no'
+
+
+- name: disable TCP forwarding
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#AllowTcpForwarding yes'
+    line: 'AllowTcpForwarding no'
+
+
+- name: disable Stream Local forwarding
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#AllowStreamLocalForwarding yes'
+    line: 'AllowStreamLocalForwarding no'
+
+
+- name: disable Gateway Ports
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#GatewayPorts yes'
+    line: 'GatewayPorts no'
+
+
+- name: disable Permit Tunnel
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#PermitTunnel yes'
+    line: 'PermitTunnel no'
+
+
+- name: changing ssh_port
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#Port 22'
+    line: 'Port "{{ ssh_port }}"'
+
+
+- name: Restart the SSH daemon
+  systemd:
+    name: ssh
+    state: restarted

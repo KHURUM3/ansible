@@ -1,0 +1,6 @@
+- name: changing ssh_port
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#Port 22'
+    line: 'Port "{{ ssh_port }}"'
